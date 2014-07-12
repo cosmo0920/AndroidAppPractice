@@ -123,14 +123,14 @@ public class EditorActivity extends Activity {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
             bw.write(text);
             bw.flush();
-            noticeSave(mUri);
+            noticeSave();
             finish();
         } finally {
             IOUtils.closeQuietly(os);
         }
     }
 
-    private void noticeSave(Uri uri) {
+    private void noticeSave() {
         try {
             Toast.makeText(getApplicationContext(), "The text has been saved",
                 Toast.LENGTH_SHORT).show();
