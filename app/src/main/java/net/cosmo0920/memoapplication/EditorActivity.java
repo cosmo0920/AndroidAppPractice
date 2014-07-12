@@ -2,8 +2,10 @@ package net.cosmo0920.memoapplication;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import net.cosmo0920.memoapplication.R;
 
 import org.apache.commons.io.IOUtils;
@@ -91,6 +92,28 @@ public class EditorActivity extends Activity {
         });
     }
 
+    private void prepareTitle (Uri uri) {
+        if (uri == null) {
+            setTitle("untitled");
+        } else {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null, null);
+
+            try {
+                cursor.moveToFirst();
+
+                String[] columnNames = cursor.getColumnNames();
+                for (String columnName : columnNames) {
+                    Log.d("EditorActivity", columnName);
+                }
+
+                String displayName = cursor.getString(cursor
+                        .getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                setTitle(displayName);
+            } finally {
+                IOUtils.closeQuietly(cursor);
+            }
+        }
+    }
     private void save(Uri uri, String text) throws FileNotFoundException, IOException {
         OutputStream os = null;
         try {
