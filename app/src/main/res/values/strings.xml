@@ -2,8 +2,9 @@
 <resources>
 
     <string name="app_name">MemoApplication</string>
-    <string name="description">choose action</string>
+    <string name="description">choose action</string>]
     <string name="action_settings">Settings</string>
+    <string name="action_delete">Delete this file</string>
     <string name="title_activity_editor">EditorActivity</string>
 
 </resources>

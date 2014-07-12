@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.Menu;
@@ -41,6 +42,7 @@ public class EditorActivity extends Activity {
         mUri = intent.getData();
 
         prepareEditText(mUri);
+        prepareTitle(mUri);
         prepareSaveButton();
     }
 
@@ -121,15 +123,20 @@ public class EditorActivity extends Activity {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
             bw.write(text);
             bw.flush();
-            noticeSave();
+            noticeSave(mUri);
+            finish();
         } finally {
             IOUtils.closeQuietly(os);
         }
     }
 
-    private void noticeSave() {
-        Toast.makeText(getApplicationContext(), "The text has been saved",
+    private void noticeSave(Uri uri) {
+        try {
+            Toast.makeText(getApplicationContext(), "The text has been saved",
                 Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
 
     private void createNewFile() {
@@ -148,11 +155,17 @@ public class EditorActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (item.getItemId() == R.id.action_delete) {
+            boolean result = deleteFile(mUri);
+
+            if (result) {
+                Toast.makeText(getApplicationContext(), "This file has been deleted",
+                        Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(getApplicationContext(), "Fail to delete this file",
+                        Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -167,6 +180,7 @@ public class EditorActivity extends Activity {
             try {
                 String text = mEditText.getText().toString();
                 mUri = intent.getData();
+                prepareTitle(mUri);
                 save(mUri, text);
             } catch (FileNotFoundException e) {
                 Log.e(TAG, e.toString());
@@ -176,5 +190,10 @@ public class EditorActivity extends Activity {
         } else {
             super.onActivityResult(requestCode, resultCode, intent);
         }
+    }
+
+    private boolean deleteFile(Uri uri) {
+        boolean result = DocumentsContract.deleteDocument(getContentResolver(), uri);
+        return result;
     }
 }
